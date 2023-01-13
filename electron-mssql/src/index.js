@@ -1,6 +1,9 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+const sql = require('mssql');
+const settings = require('electron-settings');
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -47,3 +50,31 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+const config = {
+  user: "SA",
+  password: "764864",
+  server: "localhost",
+  database: "master",
+  options: {
+    trustServerCertificate: true
+  }
+};
+
+settings.set(config);
+
+sql.connect(config).then((pool) => {
+  pool.request().query("SELECT NAME FROM sys.databases").then((result) => {
+    console.dir(result.recordset);
+  });
+});
+
+// async () => {
+//   try {
+//     await sql.connect(config);
+//     const result = sql.query("select name from sys.databases");
+//     console.dir(result);
+//   } catch (error) {
+//     console.dir(error)
+//   }
+// }
+
